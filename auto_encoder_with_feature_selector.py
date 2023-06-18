@@ -84,21 +84,21 @@ class Autoencoder(nn.Module):
         # Encoder layers
         self.encoder = nn.Sequential(
             self.feature_selector,
-            nn.Linear(input_dim, input_dim*10),
+            nn.Linear(input_dim, input_dim*5),
             nn.Dropout(0.2),
-            nn.BatchNorm1d(input_dim*10),
+            nn.BatchNorm1d(input_dim*5),
             nn.ReLU(),
             nn.Dropout(0.2),  # Dropout layer for regularization
-            nn.Linear(input_dim*10, latent_dim)
+            nn.Linear(input_dim*5, latent_dim)
         )
 
         # Decoder layers
         self.decoder = nn.Sequential(
-            nn.Linear(latent_dim, input_dim*10),
+            nn.Linear(latent_dim, input_dim*5),
             nn.Dropout(0.2),
             nn.ReLU(),
             nn.Dropout(0.2),  # Dropout layer for regularization
-            nn.Linear(input_dim*10, input_dim)
+            nn.Linear(input_dim*5, input_dim)
         )
 
         # Batch normalization layers
@@ -125,7 +125,7 @@ def cosine_distance_loss(input, output, power=2):
     return torch.mean(cosine_distance)
 
 
-def InfoNCE_loss(pos_inputs, neg_inputs, temperature=1.0, negative_weight=2.0):
+def InfoNCE_loss(pos_inputs, neg_inputs, temperature=0.5, negative_weight=2.0):
     pos_cos_dist = cosine_distance_loss(pos_inputs[:, 0], pos_inputs[:, 1])
     neg_cos_dist = cosine_distance_loss(neg_inputs[:, 0], neg_inputs[:, 1])
     pos_sim = torch.exp(-pos_cos_dist / temperature)
@@ -139,7 +139,7 @@ def InfoNCE_loss(pos_inputs, neg_inputs, temperature=1.0, negative_weight=2.0):
     loss = -torch.log(numerator / denominator)
     return loss.mean()
 
-def create_pairs(orig_latent, noisy_latent, labels, num_neg_pairs=10):
+def create_pairs(orig_latent, noisy_latent, labels, num_neg_pairs=1):
     n = orig_latent.shape[0]
     pos_pairs = []
     neg_pairs = []
@@ -147,7 +147,7 @@ def create_pairs(orig_latent, noisy_latent, labels, num_neg_pairs=10):
         label = labels[i]
         pos_pairs.append((orig_latent[i], noisy_latent[i]))
         neg_false_idx = np.random.choice(np.where((labels == label) & (np.arange(n) != i))[0])
-        neg_pairs.append((orig_latent[neg_false_idx], noisy_latent[i]))
+        # neg_pairs.append((orig_latent[neg_false_idx], noisy_latent[i]))
         for j in range(num_neg_pairs):
             neg_idx = np.random.choice(np.where(labels != label)[0])
             neg_pairs.append((orig_latent[neg_idx], noisy_latent[i]))
@@ -216,7 +216,8 @@ def train(model, optimizer, recon_criterion, train_loader, valid_loader, device,
             # Add regularization loss
             reg_loss = regularization(model, lambda_reg=0.001)
             train_reg_loss+=reg_loss
-            loss = 10*contrastive_loss + 0.5*recon_loss
+            # loss = 10*contrastive_loss + 0.5*recon_loss
+            loss = recon_loss
 
             # Perform backpropagation
             loss.backward()
@@ -252,7 +253,8 @@ def train(model, optimizer, recon_criterion, train_loader, valid_loader, device,
                 # Add regularization loss
                 reg_loss = regularization(model, lambda_reg=0.001)
                 valid_reg_loss += reg_loss
-                loss = 10 * contrastive_loss + 0.5 * recon_loss
+                # loss = 10*contrastive_loss + 0.5*recon_loss
+                loss = recon_loss
                 valid_loss += loss
 
         train_loss /= len(train_loader.dataset)
@@ -292,7 +294,7 @@ def train(model, optimizer, recon_criterion, train_loader, valid_loader, device,
 def main():
     # Set random seed for reproducibility
     print("we are in main")
-    n_samples = 20000
+    n_samples = 10000
     d = 5
     d_noise = 20
     data_orig, labels = get_data(n_samples=n_samples, d=d, d_noise=d_noise)
@@ -316,7 +318,7 @@ def main():
     hidden_dim = d
     model = Autoencoder(input_dim, hidden_dim)
     criterion = cosine_distance_loss
-    regularization = 0.003  # add L2 regularization
+    regularization = 0.005  # add L2 regularization
     optimizer = optim.Adagrad(model.parameters(), lr=0.001, weight_decay=regularization)
 
     # Train model

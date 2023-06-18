@@ -8,6 +8,8 @@ from sklearn.model_selection import train_test_split
 from two_class_data_generation import *
 import auto_encoder_model
 import auto_encoder_with_feature_selector
+import auto_encoder_with_feature_selector_simsiam
+import auto_encoder_simsiam_with_masking
 from auto_encoder_with_feature_selector import FeatureSelector
 from vae_model import *
 
@@ -88,6 +90,8 @@ def main():
         noise = 'noise'
         vae = False
         pca = False
+        masked = False
+        masked_simsiam = False
         if noise == 'noise':
             data, labels = get_data(n_samples=n_samples, d=d, d_noise=d_noise)
         else:
@@ -123,43 +127,72 @@ def main():
             if pca:
                 data = create_pca_data(data, d)
 
-        else:
-            auto_encoder_noise = "mask_noise"
-            model_path = '../models/encoded_model_with_feature_selection.pt'
+
+        elif masked:
+            noise = "mask_noise"
+            model_path = '../models/encoded_model_simsiam_masked.pt'
             saved_data = torch.load(model_path)
-            auto_encoder_model = auto_encoder_with_feature_selector.Autoencoder(data.shape[1], saved_data['hidden_dim'])
+            auto_encoder_model = auto_encoder_simsiam_with_masking.Autoencoder(data.shape[1], saved_data['hidden_dim'])
             # Load the saved model state_dict
             auto_encoder_model.load_state_dict(saved_data['state_dict'])
-
-            # Modify the feature selector weights
-
-            threshold_gate = torch.where(auto_encoder_model.feature_selector.get_weights() > 0,
-                                         auto_encoder_model.feature_selector.get_weights(), torch.tensor(float('-inf')))
-            # Replace with your desired weights
-            # auto_encoder_model.feature_selector.mu.data.copy_(threshold_gate)
-            softmax_gate = saved_data['feature_selector_stochastic_weights']
-            # print("original stochastic gate:")
-            # print(softmax_gate)
-            # print("new stochastic gate")
-            # print(auto_encoder_model.feature_selector.hard_sigmoid(threshold_gate))
-            #
-            #
-            # # Print the updated feature selector weights
-            # print("The updated gating of the autoencoder model is:")
-            # print(auto_encoder_model.feature_selector.get_weights())
-            #
-            # print("the gating of the autoencoder model is:")
-            # print(saved_data['feature_selector_weights'])
             data = torch.Tensor(data)
             labels = torch.LongTensor(labels)
             auto_encoder_model.eval()
-            data = auto_encoder_model.feature_selector(data).detach()
+            with torch.no_grad():
+                data = auto_encoder_model.encoder(data)
+
+
+        else:
+            model_path = '../models/encoded_model_simsiam.pt'
+            saved_data = torch.load(model_path)
+            auto_encoder_model = auto_encoder_with_feature_selector_simsiam.Autoencoder(data.shape[1], saved_data['hidden_dim'])
+            # Load the saved model state_dict
+            auto_encoder_model.load_state_dict(saved_data['state_dict'])
+
+            # # Modify the feature selector weights
+            # weights = auto_encoder_model.feature_selector1.get_weights()
+            # # Calculate the threshold
+            # threshold = np.percentile(weights.detach().numpy(), 75)
+            # threshold_gate = torch.where(auto_encoder_model.feature_selector1.get_weights() > threshold,
+            #                              auto_encoder_model.feature_selector1.get_weights(), torch.tensor(float('-inf')))
+            # # Replace with your desired weights
+            # auto_encoder_model.feature_selector1.mu.data.copy_(threshold_gate)
+            # softmax_gate = saved_data['feature_selector_stochastic_weights1']
+            # # print("original stochastic gate1:")
+            # # print(softmax_gate)
+            # # print("new stochastic gate1")
+            # # print(auto_encoder_model.feature_selector1.hard_sigmoid(threshold_gate))
+            #
+            #
+            # # Modify the feature selector weights
+            # weights = auto_encoder_model.feature_selector2.get_weights()
+            # # Calculate the threshold
+            # threshold = np.percentile(weights.detach().numpy(), 75)
+            # threshold_gate = torch.where(auto_encoder_model.feature_selector2.get_weights() > threshold,
+            #                              auto_encoder_model.feature_selector2.get_weights(),
+            #                              torch.tensor(float('-inf')))
+            # # Replace with your desired weights
+            # auto_encoder_model.feature_selector2.mu.data.copy_(threshold_gate)
+            # softmax_gate = saved_data['feature_selector_stochastic_weights2']
+            # # print("original stochastic gate2:")
+            # # print(softmax_gate)
+            # # print("new stochastic gate2")
+            # # print(auto_encoder_model.feature_selector2.hard_sigmoid(threshold_gate))
+
+
+
+            data = torch.Tensor(data)
+            labels = torch.LongTensor(labels)
+            auto_encoder_model.eval()
+            data = auto_encoder_model.feature_selector1(data).detach()
             # data = data * threshold_gate.unsqueeze(0)
 
             # data = auto_encoder_model.encoder(data).detach()
             if pca:
                 data = create_pca_data(data, d)
                 data = torch.Tensor(data)
+
+
 
         train_precision_model, val_precision_model = run_kmeans(data, labels)
         precision_by_run_base.append(val_precision_base)
@@ -176,8 +209,13 @@ def main():
 
     elif vae:
         csv_path_model = '../results/kmeans_two_centroids_precision_latent_vae_' + vae_noise + '.csv'
+
+    elif masked_simsiam:
+        csv_path_model = '../results/kmeans_two_centroids_precision_latent_simsiam_masekd.csv'
+
     else:
-        csv_path_model = '../results/kmeans_two_centroids_precision_latent_ae_' + auto_encoder_noise + '.csv'
+        csv_path_model = '../results/kmeans_two_centroids_precision_latent_simsiam_feature_selector.csv'
+
 
 
     # Check if the CSV file already exists
