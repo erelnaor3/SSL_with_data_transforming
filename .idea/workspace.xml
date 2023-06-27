@@ -2,14 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="15db1f36-797f-4ae5-8072-7ed18a84d356" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/auto_encoder_simsiam_with_masking.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/auto_encoder_with_feature_selector_simsiam.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auto_encoder_with_feature_selector.py" beforeDir="false" afterPath="$PROJECT_DIR$/auto_encoder_with_feature_selector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auto_encoder_simsiam_with_masking.py" beforeDir="false" afterPath="$PROJECT_DIR$/auto_encoder_simsiam_with_masking.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auto_encoder_with_feature_selector_simsiam.py" beforeDir="false" afterPath="$PROJECT_DIR$/auto_encoder_with_feature_selector_simsiam.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/k_means_testing/generated_data.png" beforeDir="false" afterPath="$PROJECT_DIR$/k_means_testing/generated_data.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/k_means_testing/k_means_classifier.py" beforeDir="false" afterPath="$PROJECT_DIR$/k_means_testing/k_means_classifier.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/encoded_model_with_feature_selection.pt" beforeDir="false" afterPath="$PROJECT_DIR$/models/encoded_model_with_feature_selection.pt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/results/kmeans_two_centroids_precision_latent_ae_mask_noise.csv" beforeDir="false" afterPath="$PROJECT_DIR$/results/kmeans_two_centroids_precision_latent_ae_mask_noise.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/kmeans_two_centroids_precision_latent_ae_no_noise.csv" beforeDir="false" afterPath="$PROJECT_DIR$/results/kmeans_two_centroids_precision_latent_ae_no_noise.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/results/kmeans_two_centroids_precision_latent_ae_noise.csv" beforeDir="false" afterPath="$PROJECT_DIR$/results/kmeans_two_centroids_precision_latent_ae_noise.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/two_class_data_generation.py" beforeDir="false" afterPath="$PROJECT_DIR$/two_class_data_generation.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -22,8 +22,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/auto_encoder_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2232">
-              <caret line="203" lean-forward="true" selection-start-line="203" selection-end-line="203" />
+            <state relative-caret-position="3196">
+              <caret line="203" selection-start-line="203" selection-end-line="203" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -34,8 +34,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/auto_encoder_with_feature_selector_simsiam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-952">
-              <caret line="28" column="23" lean-forward="true" selection-start-line="28" selection-start-column="23" selection-end-line="28" selection-end-column="23" />
+            <state relative-caret-position="3094">
+              <caret line="194" column="28" selection-start-line="194" selection-start-column="28" selection-end-line="194" selection-end-column="28" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -46,8 +46,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/auto_encoder_simsiam_with_masking.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="748">
-              <caret line="183" column="15" selection-start-line="183" selection-start-column="15" selection-end-line="183" selection-end-column="15" />
+            <state relative-caret-position="2839">
+              <caret line="179" column="25" selection-start-line="179" selection-start-column="25" selection-end-line="179" selection-end-column="25" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -55,20 +55,23 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/two_class_data_generation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-42">
-              <caret line="83" column="4" selection-start-line="83" selection-start-column="4" selection-end-line="83" selection-end-column="4" />
+            <state relative-caret-position="-327">
+              <caret line="155" column="39" selection-start-line="155" selection-start-column="39" selection-end-line="155" selection-end-column="39" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/k_means_testing/k_means_classifier.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="246">
-              <caret line="179" column="88" lean-forward="true" selection-start-line="179" selection-start-column="88" selection-end-line="179" selection-end-column="88" />
+            <state relative-caret-position="4097">
+              <caret line="256" selection-start-line="256" selection-end-line="256" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -90,6 +93,8 @@
       <find>create_pairs</find>
       <find>feature_selector1</find>
       <find>data_orig</find>
+      <find>generate_data</find>
+      <find>add_random_noise</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -99,24 +104,24 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/auto_encoder_with_feature_selector.py" />
-        <option value="$PROJECT_DIR$/auto_encoder_simsiam_with_masking.py" />
         <option value="$PROJECT_DIR$/auto_encoder_with_feature_selector_simsiam.py" />
         <option value="$PROJECT_DIR$/k_means_testing/k_means_classifier.py" />
+        <option value="$PROJECT_DIR$/auto_encoder_simsiam_with_masking.py" />
+        <option value="$PROJECT_DIR$/two_class_data_generation.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-90" />
-    <option name="y" value="120" />
+    <option name="x" value="-10" />
+    <option name="y" value="-10" />
     <option name="width" value="1940" />
-    <option name="height" value="1040" />
+    <option name="height" value="1050" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -138,11 +143,12 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../Erel sheba work/med2vec_with_timeframes" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -261,18 +267,25 @@
       <option name="presentableId" value="Default" />
       <updated>1686476240514</updated>
     </task>
+    <task id="LOCAL-00001" summary="adding simsiam as part of the model instead of the pairs so we won't have any negative sampling">
+      <created>1687073156617</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1687073156617</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24966975" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49646392" visible="true" weight="0.24966975" />
+      <window_info id="Structure" order="1" sideWeight="0.50353605" side_tool="true" visible="true" weight="0.24966975" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.43988684" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3380481" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -285,6 +298,10 @@
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="adding simsiam as part of the model instead of the pairs so we won't have any negative sampling" />
+    <option name="LAST_COMMIT_MESSAGE" value="adding simsiam as part of the model instead of the pairs so we won't have any negative sampling" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python38/Lib/site-packages/torch/nn/modules/module.py">
@@ -311,23 +328,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/auto_encoder_model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2232">
-          <caret line="203" lean-forward="true" selection-start-line="203" selection-end-line="203" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/two_class_data_generation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-42">
-          <caret line="83" column="4" selection-start-line="83" selection-start-column="4" selection-end-line="83" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/vae_model.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-362">
@@ -338,10 +338,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/auto_encoder_simsiam_with_masking.py">
+    <entry file="file://$PROJECT_DIR$/auto_encoder_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="748">
-          <caret line="183" column="15" selection-start-line="183" selection-start-column="15" selection-end-line="183" selection-end-column="15" />
+        <state relative-caret-position="3196">
+          <caret line="203" selection-start-line="203" selection-end-line="203" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
@@ -350,8 +350,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/auto_encoder_with_feature_selector_simsiam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-952">
-          <caret line="28" column="23" lean-forward="true" selection-start-line="28" selection-start-column="23" selection-end-line="28" selection-end-column="23" />
+        <state relative-caret-position="3094">
+          <caret line="194" column="28" selection-start-line="194" selection-start-column="28" selection-end-line="194" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/auto_encoder_simsiam_with_masking.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2839">
+          <caret line="179" column="25" selection-start-line="179" selection-start-column="25" selection-end-line="179" selection-end-column="25" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
@@ -360,10 +370,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/k_means_testing/k_means_classifier.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="246">
-          <caret line="179" column="88" lean-forward="true" selection-start-line="179" selection-start-column="88" selection-end-line="179" selection-end-column="88" />
+        <state relative-caret-position="4097">
+          <caret line="256" selection-start-line="256" selection-end-line="256" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/two_class_data_generation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-327">
+          <caret line="155" column="39" selection-start-line="155" selection-start-column="39" selection-end-line="155" selection-end-column="39" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>

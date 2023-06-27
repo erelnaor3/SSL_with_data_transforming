@@ -191,7 +191,9 @@ def main():
     n_samples = 100000
     d = 5
     d_noise = 20
-    data_orig, labels = get_data(n_samples=n_samples, d=d, d_noise=d_noise)
+    # data_orig, labels = get_moons_data(n_samples=n_samples, d=d, d_noise=d_noise,noise=True)
+    data_orig, labels = get_data(n_samples=n_samples, d=d, d_noise=d_noise,three_classes = True)
+
     # Create torch dataset
 
     # Create torch dataset

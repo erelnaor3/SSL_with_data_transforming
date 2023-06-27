@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.datasets import make_moons
 from sklearn.decomposition import PCA
 from sklearn.metrics import mean_squared_error
 
@@ -43,7 +44,7 @@ def get_label_mse(X_transformed, y):
 
     return label_mses, label_combination_mses
 
-def add_random_noise(X_transformed, noise_level=0.1):
+def add_random_noise(X_transformed, noise_level=3):
     # Compute the mean and standard deviation of the data
     X_mean = np.mean(X_transformed, axis=0)
     X_std = np.std(X_transformed, axis=0)
@@ -102,7 +103,35 @@ def mask_data(data, mask_prob):
 
     return masked_data
 
-def generate_data(n_samples):
+def generate_data(n_samples,three_classes = False):
+
+    if three_classes:
+        group_samples = n_samples //3
+        # Generate label 0 data
+        x0 = np.random.uniform(-2, 2, group_samples)
+        y0 = np.random.normal(1.5, 2, group_samples)
+
+        # Generate label 1 data
+        x1 = np.random.normal(4, 2, group_samples)
+        y1 = np.random.uniform(-2, 2, group_samples)
+
+        # Generate label 2 data
+        x2 = np.random.normal(4, 2, group_samples)
+        y2 = np.random.normal(-4,1, group_samples)
+
+        # Combine data and labels
+        X = np.concatenate((np.stack((x0, y0), axis=-1),
+                            np.stack((x1, y1), axis=-1),
+                            np.stack((x2, y2), axis=-1)))
+
+        y = np.concatenate((np.zeros(group_samples),
+                            np.ones(group_samples),
+                            np.full(group_samples, 2)))
+        # plot_data(X, y)
+        X = (X - np.mean(X, axis=0)) / np.std(X, axis=0)
+        return X, y
+
+
     half_samples = n_samples // 2
 
     # Generate label 0 data
@@ -122,23 +151,32 @@ def generate_data(n_samples):
 
 
 def add_noise_to_data(X,d_noise):
-    noise_means = np.random.uniform(-5, 5, d_noise)
-    noise_stds = np.random.uniform(0, 2, d_noise)
+    noise_means = np.random.uniform(-2, 2, d_noise)
+    noise_stds = np.random.uniform(0, 5, d_noise)
     noise_matrix = np.random.normal(noise_means, noise_stds, size=(len(X), d_noise))
+
+
     X_noisy = np.concatenate([X, noise_matrix], axis=1)
+    # X_noisy = (X_noisy - np.mean(X_noisy, axis=0)) / np.std(X_noisy, axis=0)
+
     return X_noisy
 
 
 def plot_data(X, y):
+    labels = np.unique(y)
+    num_labels = len(labels)
+    colors = plt.cm.rainbow(np.linspace(0, 1, num_labels))
+
     fig, ax = plt.subplots()
-    ax.scatter(X[:, 0], X[:, 1], c=y, cmap='bwr')
+    for i, label in enumerate(labels):
+        mask = np.where(y == label, True, False)
+        ax.scatter(X[mask, 0], X[mask, 1], c=colors[i], label='Label {}'.format(label))
+
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_title('Generated Data')
-    ax.legend(handles=[plt.scatter([], [], color='r', label='Label 0'),
-                        plt.scatter([], [], color='b', label='Label 1')],
-                        title='Labels',
-                        loc='upper left')
+    ax.legend(title='Labels', loc='upper left')
+
     plt.savefig('generated_data.png')
     plt.show()
 
@@ -156,8 +194,8 @@ def transform_data(X, d):
     # return transformed data and inverse transformation matrix
     return X_transformed, V
 
-def get_data(n_samples, d, d_noise):
-    X, y = generate_data(n_samples)
+def get_data(n_samples, d, d_noise,three_classes = False):
+    X, y = generate_data(n_samples,three_classes)
     X_normalized = (X - np.mean(X, axis=0)) / np.std(X, axis=0)
     X_transformed, V = transform_data(X_normalized, d=d)
     X_transformed_normalized = (X_transformed - np.mean(X_transformed, axis=0)) / np.std(X_transformed, axis=0)
@@ -168,6 +206,18 @@ def get_data(n_samples, d, d_noise):
     # print("mse before noising:")
     # print("label mses:", label_mses, " label combination mses:", label_combination_mses)
     return X_transformed_noise_concat, y
+
+def get_moons_data(n_samples, d, d_noise,noise = True):
+    X, y = make_moons(n_samples=n_samples, noise=0.1)
+    X_normalized = (X - np.mean(X, axis=0)) / np.std(X, axis=0)
+    X_transformed, V = transform_data(X_normalized, d=d)
+    X_transformed_normalized = (X_transformed - np.mean(X_transformed, axis=0)) / np.std(X_transformed, axis=0)
+    if noise:
+        # X_transformed_noise_added = add_random_noise(X_transformed, noise_level=0.5)
+        X_transformed_noise_concat = add_noise_to_data(X_transformed_normalized, d_noise)
+        return X_transformed_noise_concat, y
+
+    return X_transformed_normalized, y
 
 if __name__ == '__main__':
    X_transformed_noise_added, y = get_data(100,5,20)

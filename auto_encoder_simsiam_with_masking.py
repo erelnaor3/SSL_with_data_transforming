@@ -177,11 +177,11 @@ def main():
     hidden_dim = d
     model = Autoencoder(input_dim, hidden_dim)
     criterion = nn.CosineSimilarity(dim=1)
-    regularization = 0.005  # add L2 regularization
+    regularization = 0.02  # add L2 regularization
     optimizer = optim.Adagrad(model.parameters(), lr=0.001, weight_decay=regularization)
 
     # Train model
-    epochs = 50
+    epochs = 100
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     train_loss_history, valid_loss_history,best_model_state_dict = train(model, optimizer, criterion,
                                                                          train_loader, valid_loader, device,epochs=epochs)

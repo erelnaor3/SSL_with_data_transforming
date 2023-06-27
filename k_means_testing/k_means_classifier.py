@@ -10,6 +10,8 @@ import auto_encoder_model
 import auto_encoder_with_feature_selector
 import auto_encoder_with_feature_selector_simsiam
 import auto_encoder_simsiam_with_masking
+from sklearn import svm
+
 from auto_encoder_with_feature_selector import FeatureSelector
 from vae_model import *
 
@@ -76,29 +78,58 @@ def run_kmeans(data, labels):
 
     return train_precision, val_precision
 
+def run_svm(data, labels):
+    # Create dataset and split into train and validation sets
+    valid_size = 0.3
+    train_data, val_data, train_labels, val_labels = train_test_split(data, labels, test_size=valid_size, shuffle=True,
+                                                                      stratify=labels)
+
+    # Set up model and training parameters
+    svm_model = svm.SVC()
+
+    # Train and predict
+    svm_model.fit(train_data, train_labels)
+    train_predictions = svm_model.predict(train_data)
+    val_predictions = svm_model.predict(val_data)
+
+    # Calculate the precision
+    train_precision = precision_score(train_labels, train_predictions, average='macro')
+    val_precision = precision_score(val_labels, val_predictions, average='macro')
+
+    return train_precision, val_precision
+
 
 def main():
     precision_by_run_base = []
     precision_by_run_model = []
 
-    n_trials = 100
+    n_trials = 1
+    n_samples = 1000
+    d = 5
+    d_noise = 20
+    noise = 'noise'
+    vae = False
+    pca = False
+    masked = False
+    masked_simsiam = False
+    simsiam = True
     for i in range(n_trials):
+
         # Generate data
-        n_samples = 1000
-        d = 5
-        d_noise = 20
-        noise = 'noise'
-        vae = False
-        pca = False
-        masked = False
-        masked_simsiam = False
         if noise == 'noise':
-            data, labels = get_data(n_samples=n_samples, d=d, d_noise=d_noise)
+            # data, labels = get_moons_data(n_samples=n_samples, d=d, d_noise=d_noise)
+            data, labels = get_data(n_samples=n_samples, d=d, d_noise=d_noise, three_classes=True)
+
         else:
-            data, labels = generate_data(n_samples)
+            # data, labels = generate_data(n_samples)
+            data, labels = generate_data(n_samples,three_classes=True)
+
         # clean_data, clean_labels = generate_data(n_samples)
 
-        train_precision_base, val_precision_base = run_kmeans(torch.Tensor(data), torch.Tensor(labels))
+        # train_precision_base, val_precision_base = run_kmeans(torch.Tensor(data), torch.Tensor(labels))
+        train_precision_base, val_precision_base = run_svm(torch.Tensor(data), torch.Tensor(labels))
+
+
 
         if pca:
             pca_noise = "pca_noise"
@@ -142,42 +173,42 @@ def main():
                 data = auto_encoder_model.encoder(data)
 
 
-        else:
+        elif simsiam:
             model_path = '../models/encoded_model_simsiam.pt'
             saved_data = torch.load(model_path)
             auto_encoder_model = auto_encoder_with_feature_selector_simsiam.Autoencoder(data.shape[1], saved_data['hidden_dim'])
             # Load the saved model state_dict
             auto_encoder_model.load_state_dict(saved_data['state_dict'])
 
-            # # Modify the feature selector weights
-            # weights = auto_encoder_model.feature_selector1.get_weights()
-            # # Calculate the threshold
-            # threshold = np.percentile(weights.detach().numpy(), 75)
-            # threshold_gate = torch.where(auto_encoder_model.feature_selector1.get_weights() > threshold,
-            #                              auto_encoder_model.feature_selector1.get_weights(), torch.tensor(float('-inf')))
-            # # Replace with your desired weights
-            # auto_encoder_model.feature_selector1.mu.data.copy_(threshold_gate)
-            # softmax_gate = saved_data['feature_selector_stochastic_weights1']
-            # # print("original stochastic gate1:")
-            # # print(softmax_gate)
-            # # print("new stochastic gate1")
-            # # print(auto_encoder_model.feature_selector1.hard_sigmoid(threshold_gate))
-            #
-            #
-            # # Modify the feature selector weights
-            # weights = auto_encoder_model.feature_selector2.get_weights()
-            # # Calculate the threshold
-            # threshold = np.percentile(weights.detach().numpy(), 75)
-            # threshold_gate = torch.where(auto_encoder_model.feature_selector2.get_weights() > threshold,
-            #                              auto_encoder_model.feature_selector2.get_weights(),
-            #                              torch.tensor(float('-inf')))
-            # # Replace with your desired weights
-            # auto_encoder_model.feature_selector2.mu.data.copy_(threshold_gate)
-            # softmax_gate = saved_data['feature_selector_stochastic_weights2']
-            # # print("original stochastic gate2:")
-            # # print(softmax_gate)
-            # # print("new stochastic gate2")
-            # # print(auto_encoder_model.feature_selector2.hard_sigmoid(threshold_gate))
+            # Modify the feature selector weights
+            weights = auto_encoder_model.feature_selector1.get_weights()
+            # Calculate the threshold
+            threshold = np.percentile(weights.detach().numpy(), 80)
+            threshold_gate = torch.where(auto_encoder_model.feature_selector1.get_weights() > threshold,
+                                         auto_encoder_model.feature_selector1.get_weights(), torch.tensor(float('-inf')))
+            # Replace with your desired weights
+            auto_encoder_model.feature_selector1.mu.data.copy_(threshold_gate)
+            softmax_gate = saved_data['feature_selector_stochastic_weights1']
+            print("original stochastic gate1:")
+            print(softmax_gate)
+            # print("new stochastic gate1")
+            # print(auto_encoder_model.feature_selector1.hard_sigmoid(threshold_gate))
+
+
+            # Modify the feature selector weights
+            weights = auto_encoder_model.feature_selector2.get_weights()
+            # Calculate the threshold
+            threshold = np.percentile(weights.detach().numpy(), 80)
+            threshold_gate = torch.where(auto_encoder_model.feature_selector2.get_weights() > threshold,
+                                         auto_encoder_model.feature_selector2.get_weights(),
+                                         torch.tensor(float('-inf')))
+            # Replace with your desired weights
+            auto_encoder_model.feature_selector2.mu.data.copy_(threshold_gate)
+            softmax_gate = saved_data['feature_selector_stochastic_weights2']
+            print("original stochastic gate2:")
+            print(softmax_gate)
+            # print("new stochastic gate2")
+            # print(auto_encoder_model.feature_selector2.hard_sigmoid(threshold_gate))
 
 
 
@@ -194,7 +225,9 @@ def main():
 
 
 
-        train_precision_model, val_precision_model = run_kmeans(data, labels)
+        # train_precision_model, val_precision_model = run_kmeans(torch.Tensor(data),torch.Tensor(labels))
+        train_precision_model, val_precision_model = run_svm(data, labels)
+
         precision_by_run_base.append(val_precision_base)
         precision_by_run_model.append(val_precision_model)
 
@@ -213,8 +246,12 @@ def main():
     elif masked_simsiam:
         csv_path_model = '../results/kmeans_two_centroids_precision_latent_simsiam_masekd.csv'
 
-    else:
+    elif simsiam:
         csv_path_model = '../results/kmeans_two_centroids_precision_latent_simsiam_feature_selector.csv'
+
+    else:
+        csv_path_model = '../results/simple_testing.csv'
+
 
 
 
