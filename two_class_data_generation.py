@@ -108,16 +108,16 @@ def generate_data(n_samples,three_classes = False):
     if three_classes:
         group_samples = n_samples //3
         # Generate label 0 data
-        x0 = np.random.uniform(-2, 2, group_samples)
-        y0 = np.random.normal(1.5, 2, group_samples)
+        x0 = np.random.uniform(-4, 4, group_samples)
+        y0 = np.random.normal(1.5, 1.5, group_samples)
 
         # Generate label 1 data
-        x1 = np.random.normal(4, 2, group_samples)
-        y1 = np.random.uniform(-2, 2, group_samples)
+        x1 = np.random.normal(5, 1.5, group_samples)
+        y1 = np.random.uniform(-4, 4, group_samples)
 
         # Generate label 2 data
-        x2 = np.random.normal(4, 2, group_samples)
-        y2 = np.random.normal(-4,1, group_samples)
+        x2 = np.random.normal(5, 1.5, group_samples)
+        y2 = np.random.normal(-5,1, group_samples)
 
         # Combine data and labels
         X = np.concatenate((np.stack((x0, y0), axis=-1),
@@ -152,7 +152,7 @@ def generate_data(n_samples,three_classes = False):
 
 def add_noise_to_data(X,d_noise):
     noise_means = np.random.uniform(-2, 2, d_noise)
-    noise_stds = np.random.uniform(0, 5, d_noise)
+    noise_stds = np.random.normal(2, 0, d_noise)
     noise_matrix = np.random.normal(noise_means, noise_stds, size=(len(X), d_noise))
 
 

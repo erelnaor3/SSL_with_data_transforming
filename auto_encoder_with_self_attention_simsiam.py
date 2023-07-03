@@ -13,50 +13,54 @@ import torch.nn as nn
 from two_class_data_generation import *
 
 
-class FeatureSelector(nn.Module):
-    def __init__(self, input_dim, sigma=3):
-        super(FeatureSelector, self).__init__()
-        self.mu = torch.nn.Parameter(0.01 * torch.randn(input_dim,), requires_grad=True)
-        self.noise = torch.randn(self.mu.size())
-        self.stochastic_gate = torch.randn(self.mu.size())
-        self.sigma = sigma
-        self.noise.requires_grad = False
-        self.stochastic_gate.requires_grad = False
+class SelfAttentionSelector(nn.Module):
+    def __init__(self, input_dim, num_heads=1):
+        super(SelfAttentionSelector, self).__init__()
+        self.input_dim = input_dim
+        self.num_heads = num_heads
 
-    def forward(self, prev_x):
-        if self.training:
-            strong_noise = torch.randn(self.mu.size())   # Adjust the scale of the strong noise
-            z = self.mu + self.sigma * self.noise.normal_() + strong_noise
-        else:
-            z = self.mu
-        self.stochastic_gate = self.hard_sigmoid(z)
-        new_x = prev_x * self.stochastic_gate
-        return new_x
+        self.query = nn.Linear(input_dim, input_dim)
+        self.key = nn.Linear(input_dim, input_dim)
+        self.value = nn.Linear(input_dim, input_dim)
+        self.output_projection = nn.Linear(input_dim, input_dim)
 
-    def hard_sigmoid(self, x):
-        return torch.clamp(x + 0.5, 0.0, 1.0)
+    def forward(self, x):
+        batch_size, seq_len = x.size()
 
-    def regularizer(self, x):
-        ''' Gaussian CDF. '''
-        return 0.5 * (1 + torch.erf(x / math.sqrt(2)))
+        # Apply self-attention mechanism
+        q = self.query(x).view(batch_size, seq_len, 1, -1).transpose(1, 2)
+        k = self.key(x).view(batch_size, seq_len, 1, -1).transpose(1, 2)
+        v = self.value(x).view(batch_size, seq_len, 1, -1).transpose(1, 2)
 
-    def get_weights(self):
-        return self.mu
+        attention_weights = torch.softmax(torch.matmul(q, k.transpose(-2, -1)), dim=-1)
+        attention_output = torch.matmul(attention_weights, v).transpose(1, 2).view(batch_size, seq_len, -1)
+        # print(attention_output.shape)
+        # Merge the heads and project to the output dimension
+        attention_output = attention_output.squeeze()
+        # print(attention_output.shape)
+        output = self.output_projection(attention_output).view(batch_size, seq_len)
 
-    def get_stochastic_weights(self):
-        return self.stochastic_gate
+        return output
 
-    def _apply(self, fn):
-        super(FeatureSelector, self)._apply(fn)
-        self.noise = fn(self.noise)
-        return self
+    def get_weights(self, x):
+        batch_size, seq_len = x.size()
+
+        q = self.query(x).view(batch_size, seq_len, 1, -1).transpose(1, 2)
+        k = self.key(x).view(batch_size, seq_len, 1, -1).transpose(1, 2)
+        # print(k.shape)
+        attention_weights = torch.softmax(torch.matmul(q, k.transpose(-2, -1)), dim=-1)
+        # print(attention_weights.shape)
+        attention_weights = attention_weights.view(batch_size, seq_len, self.num_heads, seq_len)
+
+        return attention_weights
+
 
 class Autoencoder(nn.Module):
     def __init__(self, input_dim, latent_dim=50):
         super(Autoencoder, self).__init__()
 
-        self.feature_selector1 = FeatureSelector(input_dim)
-        self.feature_selector2 = FeatureSelector(input_dim)
+        self.feature_selector1 = SelfAttentionSelector(input_dim)
+        self.feature_selector2 = SelfAttentionSelector(input_dim)
 
         # Encoder layers
         self.encoder = nn.Sequential(
@@ -70,18 +74,21 @@ class Autoencoder(nn.Module):
 
         # Predictor layers
         self.predictor = nn.Sequential(
-            nn.Linear(latent_dim, latent_dim),
-            nn.Dropout(0.2)
+            nn.Linear(latent_dim, latent_dim*5),
+            nn.Dropout(0.2),
+            nn.ReLU(),
+            nn.Dropout(0.2),  # Dropout layer for regularization
+            nn.Linear(latent_dim*5, latent_dim)
         )
 
         # Batch normalization layers
         self.batch_norm2 = nn.BatchNorm1d(latent_dim)
 
     def forward(self, x):
-        # Apply the first feature selector
+        # Apply the first self-attention selector
         x1_f = self.feature_selector1(x)
 
-        # Apply the second feature selector
+        # Apply the second self-attention selector
         x2_f = self.feature_selector2(x)
 
         # Encode the input
@@ -129,9 +136,7 @@ def train(model, optimizer, criterion, train_loader, valid_loader, device, epoch
             sim_loss = -(criterion(p1, z2).mean() + criterion(p2, z1).mean()) * 0.5
             train_sim_loss += sim_loss
             # Add regularization loss
-            lambda_reg = 0.001
-            mu = model.feature_selector1.get_weights()
-            reg_loss = regularization(model,lambda_reg) + lambda_reg*torch.norm(mu, p=2) - lambda_reg*torch.exp(-torch.var(mu))
+            reg_loss = regularization(model, lambda_reg=0.001)
             train_reg_loss+=reg_loss
             # loss = 10*contrastive_loss + 0.5*recon_loss
             loss = sim_loss + reg_loss
@@ -150,9 +155,7 @@ def train(model, optimizer, criterion, train_loader, valid_loader, device, epoch
                 sim_loss = -(criterion(p1, z2).mean() + criterion(p2, z1).mean()) * 0.5
                 valid_sim_loss += sim_loss
                 # Add regularization loss
-                lambda_reg = 0.001
-                mu = model.feature_selector1.get_weights()
-                reg_loss = regularization(model, lambda_reg) + lambda_reg * torch.norm(mu, p=2) - lambda_reg * torch.exp(-torch.var(mu))
+                reg_loss = regularization(model, lambda_reg=0.001)
                 valid_reg_loss += reg_loss
                 # loss = 10*contrastive_loss + 0.5*recon_loss
                 loss = sim_loss + reg_loss
@@ -216,7 +219,7 @@ def main():
     valid_set = torch.utils.data.Subset(dataset, valid_idx)
 
     # Create data loaders
-    batch_size = 32
+    batch_size = 128
     train_loader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True)
     valid_loader = torch.utils.data.DataLoader(valid_set, batch_size=batch_size, shuffle=True)
     # Initialize model, optimizer and loss function
@@ -228,7 +231,7 @@ def main():
     optimizer = optim.Adagrad(model.parameters(), lr=0.0005, weight_decay=regularization)
 
     # Train model
-    epochs = 200
+    epochs = 50
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     train_loss_history, valid_loss_history,best_model_state_dict = train(model, optimizer, criterion,
                                                                          train_loader, valid_loader, device,epochs=epochs)
@@ -237,16 +240,12 @@ def main():
     plt.plot(valid_loss_history, label='Validation Loss')
     plt.legend()
     plt.show()
-    plt.savefig('plots_and_images/autoencoer_simsiam.png')
-    file_name = 'models/encoded_model_simsiam.pt'
+    plt.savefig('plots_and_images/autoencoer_attention_simsiam.png')
+    file_name = 'models/encoded_model_attention_simsiam.pt'
 
     torch.save({
         'state_dict': model.state_dict(),
         'labels': labels.detach(),
-        'feature_selector_weights1':model.feature_selector1.get_weights(),
-        'feature_selector_stochastic_weights1': model.feature_selector1.get_stochastic_weights(),
-        'feature_selector_weights2': model.feature_selector2.get_weights(),
-        'feature_selector_stochastic_weights2': model.feature_selector2.get_stochastic_weights(),
         'hidden_dim': hidden_dim
     }, file_name)
 
